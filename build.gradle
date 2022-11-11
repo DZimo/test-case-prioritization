@@ -1,0 +1,98 @@
+plugins {
+    id "java"
+    id "jacoco"
+    id "idea"
+    id "eclipse"
+}
+
+group = "de.uni_passau.fim.se2"
+version = "1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility(JavaVersion.VERSION_17)
+    targetCompatibility(JavaVersion.VERSION_17)
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.knowm.xchart:xchart:3.8.2"
+    implementation "org.jacoco:org.jacoco.core:0.8.8"
+    implementation "org.junit.jupiter:junit-jupiter-api:5.9.0"
+    //noinspection GradlePackageUpdate
+    implementation "commons-cli:commons-cli:1.4"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.1"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.9.0"
+    testImplementation "com.google.truth:truth:1.1.3"
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation "org.mockito:mockito-junit-jupiter:4.8.0"
+    testImplementation "org.mockito:mockito-core:4.8.0"
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.9.0"
+}
+
+test {
+    enableAssertions = true
+
+    useJUnitPlatform()
+
+    jacoco {
+        enabled = true
+    }
+
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required = true
+        csv.required = true
+        html.required = true
+    }
+
+    // We only measure test coverage for the files in the test_prioritization package.
+    // https://stackoverflow.com/a/29887806
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: "de/uni_passau/fim/se2/test_prioritization/**")
+        }))
+    }
+}
+
+jar {
+    //noinspection GroovyAssignabilityCheck
+    manifest {
+        attributes "Main-Class": "de.uni_passau.fim.se2.Main"
+    }
+
+    // Create an executable "fat" JAR that includes all runtime dependencies.
+    // https://stackoverflow.com/a/49284432
+    from {
+        // https://github.com/gradle/gradle/issues/17236
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+        configurations.compileClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}

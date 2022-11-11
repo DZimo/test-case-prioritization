@@ -1,0 +1,65 @@
+on:
+  push:
+    branches: [ main, master ]
+
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        java-version: [ 17 ]
+        os: [ ubuntu-latest ]
+
+    steps:
+      - name: Clear workspace and recreate the directory
+        run: |
+          rm -rf "${{ github.workspace }}"
+          mkdir -p "${{ github.workspace }}"
+
+      - name: Checkout code into workspace directory
+        uses: actions/checkout@v2
+
+      - name: Check WHOAMI.md exists
+        uses: andstor/file-existence-action@v1
+        id: check_whoami_file
+        with:
+          files: "WHOAMI.md"
+          allow_failure: true
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'adopt'
+
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x gradlew
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew assemble
+
+      - name: Run tests with Gradle
+        run: |
+          ./gradlew test
+          
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          generate-coverage-badge: true
+          generate-branches-badge: true
+          badges-directory: .github/badges
+          intervals: 100 99 98 97 96 95 94 93 92 91 90 89 88 87 86 85 84 83 82 81 80 79 78 77 76 75 74 73 72 71 70 69 68 67 66 65 64 63 62 61 60 59 58 57 56 55 54 53 52 51 50 49 48 47 46 45 44 43 42 41 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+          
+      - name: Commit and push the badge (if it changed)
+        uses: EndBug/add-and-commit@v7
+        with:
+          default_author: github_actions
+          message: 'Commit JaCoCo badges'
+          add: '*.svg'
