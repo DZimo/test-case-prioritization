@@ -99,7 +99,21 @@ public class Bridge {
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
         // TODO: please implement
-        throw new UnsupportedOperationException("please implement");
+        System.out.println("random "+random);
+        System.out.println("stoppingCondition "+stoppingCondition);
+        System.out.println("coverageMatrix "+coverageMatrix.toString());
+        for(int i=0;i<coverageMatrix.length;i++){
+            for(int j=0;j<coverageMatrix[i].length;j++){
+                if (coverageMatrix[i][j]){
+                System.out.print("1");}
+                else {
+                    System.out.print("0");
+                }
+            }
+
+            System.out.println(" ");
+        }
+        return null;
     }
 
     /**
@@ -111,7 +125,33 @@ public class Bridge {
      */
     static StoppingCondition buildMaxFitnessEvalsCondition(final int maxEvals) {
         // TODO: please implement
-        throw new UnsupportedOperationException("please implement");
+        System.out.println("maxEvals"+maxEvals);
+return new StoppingCondition() {
+    @Override
+    public void notifySearchStarted() {
+
+        System.out.println("Search started");
+    }
+
+    @Override
+    public void notifyFitnessEvaluation() {
+
+    }
+
+    @Override
+    public boolean searchMustStop() {
+        if(getProgress() == maxEvals){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public double getProgress() {
+        return 0;
+    }
+};
+
     }
 
     /**
