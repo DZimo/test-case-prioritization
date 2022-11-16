@@ -210,7 +210,8 @@ return new StoppingCondition() {
     static double computeAPLC(final boolean[][] coverageMatrix, final int[] ordering) {
         assert coverageMatrix.length == ordering.length;
         // TODO: please implement
-        return 0;
+        double numberToReturn=0f;
+        return numberToReturn;
         //throw new UnsupportedOperationException("please implement");
     }
 
