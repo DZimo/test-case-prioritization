@@ -24,16 +24,15 @@ public class Fitness {
 
      private static double countTL(boolean[][] coverageMatrix, int[] randomSolution ){
 
-        ArrayList<Integer> statementResolved = new ArrayList<Integer>();
+        ArrayList<Integer> statementResolved = new ArrayList<>();
         for (int i=0;i<coverageMatrix[0].length;i++){
             statementResolved.add(0);
         }
 
-        ArrayList<Integer> temporarySolution = new ArrayList<Integer>();
+        ArrayList<Integer> temporarySolution = new ArrayList<>();
         for (int i=0;i<coverageMatrix.length;i++){
             temporarySolution.add(0);
         }
-
         int solution=0;
         int count;
         for (int i = 0; i < coverageMatrix.length; i++) {
@@ -44,8 +43,9 @@ public class Fitness {
                     count++;
                 }
             }
-            temporarySolution.set(i,count);
+            temporarySolution.set(i,count-1);
         }
+        temporarySolution.set(temporarySolution.size()-1,temporarySolution.get(temporarySolution.size()-1)+1);
         for (int i = 0; i <coverageMatrix.length ; i++) {
             solution = solution + temporarySolution.get(i) * (i + 1);
         }

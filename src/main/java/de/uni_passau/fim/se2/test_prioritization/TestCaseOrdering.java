@@ -17,6 +17,8 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
 
     final String chosenAlgorithm;
 
+
+
     private static boolean isMinimizing = false;
 
     public TestCaseOrdering(boolean[][] coverageMatrix, String algorithm) {
@@ -25,13 +27,23 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
         isMinimizing = this.isMinimizing();
     }
 
-    private int step = 0;
 
-    private int maxStep = 500;
+    public TestCaseOrdering() {
+        coverageMatrix = new boolean[0][];
+        chosenAlgorithm = null;
+    }
+
+    private int evalCounter = 0;
+
     private boolean isMaxFitnessReached = false;
 
     public Set<Integer> randomSolution;
 
+    public static void setMaxEvals(int maxEvals) {
+        TestCaseOrdering.maxEvals = maxEvals;
+    }
+
+    static int maxEvals=1000;
 
     /**
      * Performs an elementary transformation of the given configuration.
@@ -117,7 +129,8 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public int degreesOfFreedom() {
-        return 0;
+
+        return this.randomSolution.size();
     }
 
     /**
@@ -127,7 +140,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public boolean equals(Object other) {
-        return false;
+        return other.equals(self());
     }
 
     /**
@@ -135,8 +148,9 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public int hashCode() {
-        return 0;
+        return self().hashCode();
     }
+
 
     /**
      * <p>
@@ -183,7 +197,6 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public double getFitnessFor(Object o) {
-        step++;
         TestCaseOrdering testCase = (TestCaseOrdering) o;
         Set<Integer> randomSolution = testCase.randomSolution;
         boolean[][] coverageMatrix = testCase.coverageMatrix;
@@ -220,7 +233,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public void notifySearchStarted() {
-        step = 0;
+        evalCounter = 0;
         isMaxFitnessReached = false;
     }
 
@@ -230,7 +243,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public void notifyFitnessEvaluation() {
-
+        evalCounter++;
     }
 
     /**
@@ -242,7 +255,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
     @Override
     public boolean searchMustStop() {
 
-        return (isMaxFitnessReached || step > maxStep);
+        return (isMaxFitnessReached || evalCounter > maxEvals);
     }
 
     /**
@@ -255,7 +268,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public double getProgress() {
-        return 0;
+        return evalCounter/maxEvals;
     }
 
 

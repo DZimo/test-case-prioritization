@@ -32,6 +32,7 @@ public class SimulatedAnnealing <C extends Configuration<C>> implements SearchAl
      * Stepping function to perform the simulated annealing.
      */
     private final UnaryOperator<C> stepper;
+    private double p0;
 
     /**
      * Instantiates a new random walk.
@@ -82,14 +83,15 @@ public class SimulatedAnnealing <C extends Configuration<C>> implements SearchAl
 
         double p0=0.2;
 
-        while (searchCanContinue()){
+        while (searchCanContinue() && step<maxStep){
+
             fraction=step/maxStep;
             actualTemperature= getTemperature(fraction);
 
             neighbour = pickRandomNeighbor(current);
             step++;
 
-            if(acceptanceProbability(current.snd(),neighbour.snd(),actualTemperature)>p0) {
+            if(acceptanceProbability(current.snd(),neighbour.snd(),actualTemperature)> p0) {
                 current = neighbour;
 
                 if (current.snd() > bestCandidate.snd()) {

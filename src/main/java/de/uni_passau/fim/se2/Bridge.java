@@ -123,50 +123,9 @@ public class Bridge {
      * @return a stopping condition that respects {@code maxEvals}
      */
     static StoppingCondition buildMaxFitnessEvalsCondition(final int maxEvals) {
-        // TODO: please implement
-        return new StoppingCondition() {
-            /**
-             * Notifies this stopping condition that the search has started. Intended to be called by the
-             * search algorithm the stopping condition is subscribed to.
-             */
-            @Override
-            public void notifySearchStarted() {
-
-            }
-
-            /**
-             * Notifies this stopping condition that a fitness evaluation took place. Intended to be called
-             * by the search algorithm the stopping condition is subscribed to.
-             */
-            @Override
-            public void notifyFitnessEvaluation() {
-
-            }
-
-            /**
-             * Tells whether the search algorithm must stop, i.e., the search budget has been exhausted. The
-             * inverse of {@code searchCanContinue()}.
-             *
-             * @return {@code true} if the search must stop, {@code false} otherwise
-             */
-            @Override
-            public boolean searchMustStop() {
-                return false;
-            }
-
-            /**
-             * Returns how much search budget has already been consumed by the search. The returned value
-             * should be a percentage, i.e., a value in the interval [0,1]. But this is not an absolute
-             * requirement, and implementations might choose to return different values if it makes sense
-             * for them. In this case, however, it is recommended to clearly document their behavior.
-             *
-             * @return the amount of search budget consumed
-             */
-            @Override
-            public double getProgress() {
-                return 0;
-            }
-        };
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering();
+        testCaseOrdering.setMaxEvals(maxEvals);
+        return testCaseOrdering;
     }
 
     /**
