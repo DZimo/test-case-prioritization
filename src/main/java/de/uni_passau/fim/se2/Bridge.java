@@ -1,10 +1,15 @@
 package de.uni_passau.fim.se2;
 
+import de.uni_passau.fim.se2.metaheuristics.algorithms.RandomWalk;
 import de.uni_passau.fim.se2.metaheuristics.algorithms.SearchAlgorithm;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.MaxTime;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.StoppingCondition;
+import de.uni_passau.fim.se2.test_prioritization.RandomSearch;
+import de.uni_passau.fim.se2.test_prioritization.TestCaseOrdering;
+
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Bridge between the {@code Main} class and your implementation.
@@ -15,10 +20,10 @@ public class Bridge {
      * Builds the specified search {@code algorithm} using the given {@code random} number
      * generator, {@code stoppingCondition} and {@code coverageMatrix}.
      *
-     * @param algorithm the algorithm to build
-     * @param random the RNG instance to use
+     * @param algorithm         the algorithm to build
+     * @param random            the RNG instance to use
      * @param stoppingCondition the stopping condition to use
-     * @param coverageMatrix the coverage matrix to use
+     * @param coverageMatrix    the coverage matrix to use
      * @return the search algorithm
      */
     static SearchAlgorithm<?> buildAlgorithm(
@@ -37,9 +42,9 @@ public class Bridge {
      * Returns an implementation of the Random Walk search algorithm to find a solution for the
      * test case prioritization problem.
      *
-     * @param random the RNG instance to use
+     * @param random            the RNG instance to use
      * @param stoppingCondition the stopping condition to use
-     * @param coverageMatrix the coverage matrix to use
+     * @param coverageMatrix    the coverage matrix to use
      * @return the search algorithm
      * @apiNote The return type uses a wildcard type "{@code ?}". This is because your implementing
      * subclass of {@code Configuration} has not existed yet at the time of writing this code, so
@@ -52,17 +57,18 @@ public class Bridge {
             final Random random,
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
-        // TODO: please implement
-        throw new UnsupportedOperationException("please implement");
+
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix);
+        return new RandomWalk<>(testCaseOrdering, testCaseOrdering, testCaseOrdering);
     }
 
     /**
      * Returns an implementation of the Random Search algorithm to find a solution for the
      * test case prioritization problem.
      *
-     * @param random the RNG instance to use
+     * @param random            the RNG instance to use
      * @param stoppingCondition the stopping condition to use
-     * @param coverageMatrix the coverage matrix to use
+     * @param coverageMatrix    the coverage matrix to use
      * @return the search algorithm
      * @apiNote The return type uses a wildcard type "{@code ?}". This is because your implementing
      * subclass of {@code Configuration} has not existed yet at the time of writing this code, so
@@ -75,17 +81,20 @@ public class Bridge {
             final Random random,
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
-        // TODO: please implement
-        throw new UnsupportedOperationException("please implement");
+
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix);
+
+        return new RandomSearch(testCaseOrdering, testCaseOrdering, testCaseOrdering);
+
     }
 
     /**
      * Returns an implementation of the Simulated Annealing search algorithm to find a solution for
      * the test case prioritization problem.
      *
-     * @param random the RNG instance to use
+     * @param random            the RNG instance to use
      * @param stoppingCondition the stopping condition to use
-     * @param coverageMatrix the coverage matrix to use
+     * @param coverageMatrix    the coverage matrix to use
      * @return the search algorithm
      * @apiNote The return type uses a wildcard type "{@code ?}". This is because your implementing
      * subclass of {@code Configuration} has not existed yet at the time of writing this code, so
@@ -99,14 +108,14 @@ public class Bridge {
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
         // TODO: please implement
-        System.out.println("random "+random);
-        System.out.println("stoppingCondition "+stoppingCondition);
-        System.out.println("coverageMatrix "+coverageMatrix.toString());
-        for(int i=0;i<coverageMatrix.length;i++){
-            for(int j=0;j<coverageMatrix[i].length;j++){
-                if (coverageMatrix[i][j]){
-                System.out.print("1");}
-                else {
+        System.out.println("random " + random);
+        System.out.println("stoppingCondition " + stoppingCondition);
+        System.out.println("coverageMatrix " + coverageMatrix.toString());
+        for (int i = 0; i < coverageMatrix.length; i++) {
+            for (int j = 0; j < coverageMatrix[i].length; j++) {
+                if (coverageMatrix[i][j]) {
+                    System.out.print("1");
+                } else {
                     System.out.print("0");
                 }
             }
@@ -125,33 +134,49 @@ public class Bridge {
      */
     static StoppingCondition buildMaxFitnessEvalsCondition(final int maxEvals) {
         // TODO: please implement
-        System.out.println("maxEvals"+maxEvals);
-return new StoppingCondition() {
-    @Override
-    public void notifySearchStarted() {
+        return new StoppingCondition() {
+            /**
+             * Notifies this stopping condition that the search has started. Intended to be called by the
+             * search algorithm the stopping condition is subscribed to.
+             */
+            @Override
+            public void notifySearchStarted() {
 
-        System.out.println("Search started");
-    }
+            }
 
-    @Override
-    public void notifyFitnessEvaluation() {
+            /**
+             * Notifies this stopping condition that a fitness evaluation took place. Intended to be called
+             * by the search algorithm the stopping condition is subscribed to.
+             */
+            @Override
+            public void notifyFitnessEvaluation() {
 
-    }
+            }
 
-    @Override
-    public boolean searchMustStop() {
-        if(getProgress() == maxEvals){
-            return true;
-        }
-        return false;
-    }
+            /**
+             * Tells whether the search algorithm must stop, i.e., the search budget has been exhausted. The
+             * inverse of {@code searchCanContinue()}.
+             *
+             * @return {@code true} if the search must stop, {@code false} otherwise
+             */
+            @Override
+            public boolean searchMustStop() {
+                return false;
+            }
 
-    @Override
-    public double getProgress() {
-        return 0;
-    }
-};
-
+            /**
+             * Returns how much search budget has already been consumed by the search. The returned value
+             * should be a percentage, i.e., a value in the interval [0,1]. But this is not an absolute
+             * requirement, and implementations might choose to return different values if it makes sense
+             * for them. In this case, however, it is recommended to clearly document their behavior.
+             *
+             * @return the amount of search budget consumed
+             */
+            @Override
+            public double getProgress() {
+                return 0;
+            }
+        };
     }
 
     /**
@@ -169,7 +194,7 @@ return new StoppingCondition() {
      * Returns a stopping condition that measures the search budget in terms of the given number of
      * hours, minutes, and seconds the search is allowed to run for.
      *
-     * @param hours the hours
+     * @param hours   the hours
      * @param minutes the minutes
      * @param seconds the seconds
      * @return a stopping condition
@@ -187,7 +212,7 @@ return new StoppingCondition() {
      * algorithm.
      *
      * @param coverageMatrix the coverage matrix
-     * @param solution the solution encoding an ordering of test cases
+     * @param solution       the solution encoding an ordering of test cases
      * @return the APLC value
      * @apiNote The method uses the {@code Object} type for {@code solution} because at the time of
      * writing this code your implementation has not existed yet.
@@ -204,15 +229,22 @@ return new StoppingCondition() {
      * {@code coverageMatrix.length == ordering.length}.
      *
      * @param coverageMatrix the coverage matrix
-     * @param ordering the ordering of test cases
+     * @param ordering       the ordering of test cases
      * @return the resulting APLC value
      */
     static double computeAPLC(final boolean[][] coverageMatrix, final int[] ordering) {
         assert coverageMatrix.length == ordering.length;
         // TODO: please implement
-        double numberToReturn=0f;
+        double numberToReturn = 0f;
+
+        double m = coverageMatrix[0].length;
+        double n = coverageMatrix.length;
+
+
+        numberToReturn = 1 - ((1 / (n * m)) * TestCaseOrdering.countTL(coverageMatrix, ordering)) + (1 / (2 * n));
+
         return numberToReturn;
-        //throw new UnsupportedOperationException("please implement");
+
     }
 
     /**
@@ -228,8 +260,9 @@ return new StoppingCondition() {
      * {@code Configuration} to further process it.
      */
     static int[] extractOrderingFromSolution(final Object solution) {
-        // TODO: please implement
-        throw new UnsupportedOperationException("please implement");
+        TestCaseOrdering testCaseOrdering = (TestCaseOrdering) solution;
+
+        return testCaseOrdering.randomSolution.stream().mapToInt(Integer::intValue).toArray();
     }
 
     static String getTestCaseOrder(final String[] testCases, final Object solution) {

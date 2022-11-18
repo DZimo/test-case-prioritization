@@ -15,6 +15,7 @@ public class SimulatedAnnealing implements SearchAlgorithm {
      */
     @Override
     public Object findSolution() {
+
         return null;
     }
 

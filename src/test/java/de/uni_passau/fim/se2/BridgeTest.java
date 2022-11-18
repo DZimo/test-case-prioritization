@@ -4,6 +4,8 @@ import static com.google.common.truth.Truth.assert_;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +50,7 @@ class BridgeTest {
         final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected =
                 1 - (1d + 2 + 1 + 3 + 2 + 3 + 5 + 5 + 5 + 5) / (5 * 10) + 1d / (2 * 5);
-        //assert_().that(actual).isWithin(TOLERANCE).of(expected);
+       // assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 
     @Test

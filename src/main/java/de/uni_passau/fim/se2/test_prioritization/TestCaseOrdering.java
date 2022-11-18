@@ -1,12 +1,30 @@
 package de.uni_passau.fim.se2.test_prioritization;
 
+import de.uni_passau.fim.se2.Bridge;
 import de.uni_passau.fim.se2.metaheuristics.configurations.Configuration;
+import de.uni_passau.fim.se2.metaheuristics.configurations.ConfigurationGenerator;
 import de.uni_passau.fim.se2.metaheuristics.configurations.ElementaryTransformation;
 import de.uni_passau.fim.se2.metaheuristics.fitness_functions.FitnessFunction;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.StoppingCondition;
+import de.uni_passau.fim.se2.util.Randomness;
 import de.uni_passau.fim.se2.util.SelfTyped;
 
-public class TestCaseOrdering extends Configuration implements ElementaryTransformation, FitnessFunction, StoppingCondition {
+
+import java.util.*;
+
+public class TestCaseOrdering extends Configuration implements ElementaryTransformation, FitnessFunction, StoppingCondition, ConfigurationGenerator {
+
+    final boolean[][] coverageMatrix;
+
+    public TestCaseOrdering(boolean[][] coverageMatrix) {
+        this.coverageMatrix = coverageMatrix;
+    }
+
+    private int counter=0;
+    private boolean isMaxFitnessReached=false;
+
+    public Set<Integer> randomSolution;
+
 
     /**
      * Performs an elementary transformation of the given configuration.
@@ -57,7 +75,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public Object apply(Object o) {
-        return null;
+        return o;
     }
 
     /**
@@ -68,7 +86,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public Configuration copy() {
-        return null;
+        return this;
     }
 
     /**
@@ -122,7 +140,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public SelfTyped self() {
-        return null;
+        return this;
     }
 
     /**
@@ -144,8 +162,47 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      * @throws NullPointerException if {@code null} is given
      */
     @Override
-    public double getFitnessFor(Object o) throws NullPointerException {
-        return 0;
+    public double getFitnessFor(Object o) {
+        counter++;
+        TestCaseOrdering testCase = (TestCaseOrdering) o;
+        Set<Integer> randomSolution = testCase.randomSolution;
+        boolean[][] coverageMatrix = testCase.coverageMatrix;
+
+        double m = coverageMatrix[0].length;
+        double n = coverageMatrix.length;
+
+        return 1- ((1/(n*m)) * countTL(coverageMatrix,randomSolution.stream().mapToInt(Integer::intValue).toArray()))  + (1/(2*n));
+
+    }
+    public static double countTL(boolean[][] coverageMatrix, int[] randomSolution ){
+
+        ArrayList<Integer> statementResolved = new ArrayList<Integer>();
+        for (int i=0;i<coverageMatrix[0].length;i++){
+            statementResolved.add(0);
+        }
+
+        ArrayList<Integer> temporarySolution = new ArrayList<Integer>();
+        for (int i=0;i<coverageMatrix.length;i++){
+            temporarySolution.add(0);
+        }
+
+        int solution=0;
+        int count;
+        for (int i = 0; i < coverageMatrix.length; i++) {
+            count=0;
+            for (int j = 0; j < coverageMatrix[0].length; j++) {
+                if(coverageMatrix[randomSolution[i]][j]==true && statementResolved.get(j)==0){
+                    statementResolved.set(i,1);
+                    count++;
+                }
+            }
+            temporarySolution.set(i,count);
+        }
+        for (int i = 0; i <coverageMatrix.length ; i++) {
+            solution = solution + temporarySolution.get(i) * (i + 1);
+        }
+
+        return solution;
     }
 
     /**
@@ -166,7 +223,8 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public void notifySearchStarted() {
-
+    counter=0;
+    isMaxFitnessReached=false;
     }
 
     /**
@@ -186,7 +244,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public boolean searchMustStop() {
-        return false;
+        return (isMaxFitnessReached || counter >100);
     }
 
     /**
@@ -200,5 +258,31 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
     @Override
     public double getProgress() {
         return 0;
+    }
+
+
+    /**
+     * Creates and returns a random configuration, which must be a valid and admissible solution of
+     * the problem at hand.
+     *
+     * @return a random configuration
+     */
+    @Override
+    public Configuration get() {
+
+        TestCaseOrdering c = new TestCaseOrdering(this.coverageMatrix);
+        if (this.coverageMatrix.length > 0) {
+            int n = this.coverageMatrix.length;
+            Random randomness = Randomness.random();
+            Set<Integer> ordersGenerated = new LinkedHashSet<Integer>();
+            while (ordersGenerated.size() < n) {
+                Integer nextRandom = randomness.nextInt(n);
+                ordersGenerated.add(nextRandom);
+            }
+            c.randomSolution = ordersGenerated;
+            return c;
+        } else {
+            return null;
+        }
     }
 }
