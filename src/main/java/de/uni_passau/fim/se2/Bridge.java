@@ -4,12 +4,13 @@ import de.uni_passau.fim.se2.metaheuristics.algorithms.RandomWalk;
 import de.uni_passau.fim.se2.metaheuristics.algorithms.SearchAlgorithm;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.MaxTime;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.StoppingCondition;
+import de.uni_passau.fim.se2.test_prioritization.Fitness;
 import de.uni_passau.fim.se2.test_prioritization.RandomSearch;
+import de.uni_passau.fim.se2.test_prioritization.SimulatedAnnealing;
 import de.uni_passau.fim.se2.test_prioritization.TestCaseOrdering;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Bridge between the {@code Main} class and your implementation.
@@ -58,7 +59,7 @@ public class Bridge {
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
 
-        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix);
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix, "RW");
         return new RandomWalk<>(testCaseOrdering, testCaseOrdering, testCaseOrdering);
     }
 
@@ -82,7 +83,8 @@ public class Bridge {
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
 
-        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix);
+
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix, "RS");
 
         return new RandomSearch(testCaseOrdering, testCaseOrdering, testCaseOrdering);
 
@@ -107,22 +109,10 @@ public class Bridge {
             final Random random,
             final StoppingCondition stoppingCondition,
             final boolean[][] coverageMatrix) {
-        // TODO: please implement
-        System.out.println("random " + random);
-        System.out.println("stoppingCondition " + stoppingCondition);
-        System.out.println("coverageMatrix " + coverageMatrix.toString());
-        for (int i = 0; i < coverageMatrix.length; i++) {
-            for (int j = 0; j < coverageMatrix[i].length; j++) {
-                if (coverageMatrix[i][j]) {
-                    System.out.print("1");
-                } else {
-                    System.out.print("0");
-                }
-            }
 
-            System.out.println(" ");
-        }
-        return null;
+        TestCaseOrdering testCaseOrdering = new TestCaseOrdering(coverageMatrix, "SA");
+
+        return new SimulatedAnnealing(testCaseOrdering, testCaseOrdering, testCaseOrdering);
     }
 
     /**
@@ -234,16 +224,11 @@ public class Bridge {
      */
     static double computeAPLC(final boolean[][] coverageMatrix, final int[] ordering) {
         assert coverageMatrix.length == ordering.length;
-        // TODO: please implement
-        double numberToReturn = 0f;
 
         double m = coverageMatrix[0].length;
         double n = coverageMatrix.length;
 
-
-        numberToReturn = 1 - ((1 / (n * m)) * TestCaseOrdering.countTL(coverageMatrix, ordering)) + (1 / (2 * n));
-
-        return numberToReturn;
+        return Fitness.getFitness(m, n, coverageMatrix, ordering);
 
     }
 

@@ -6,6 +6,7 @@ import de.uni_passau.fim.se2.metaheuristics.configurations.Configuration;
 import de.uni_passau.fim.se2.metaheuristics.configurations.ConfigurationGenerator;
 import de.uni_passau.fim.se2.metaheuristics.fitness_functions.FitnessFunction;
 import de.uni_passau.fim.se2.metaheuristics.stopping_conditions.StoppingCondition;
+import de.uni_passau.fim.se2.test_prioritization.TestCaseOrdering;
 import de.uni_passau.fim.se2.util.Pair;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -153,8 +154,8 @@ public final class RandomWalk<C extends Configuration<C>> implements SearchAlgor
      */
     private Pair<C, Double> pickRandomNeighbor(final Pair<C, Double> configFitnessPair) {
         final C config = configFitnessPair.getFst();
-        final C neighbor = stepper.apply(config);
-        return makeConfigFitnessPairFor(neighbor);
+        final Configuration neighbor = ((TestCaseOrdering) config).apply(config);
+        return makeConfigFitnessPairFor((C) neighbor);
     }
 
     /**

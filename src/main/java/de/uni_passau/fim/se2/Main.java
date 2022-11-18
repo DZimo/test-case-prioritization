@@ -129,7 +129,7 @@ public class Main {
     /**
      * The default number of repetitions (when not explicitly specified by the user).
      */
-    private static final int defaultReps = 30;
+    private static final int defaultReps = 50;
 
     /**
      * How often to repeat the search. By default, 30 times.

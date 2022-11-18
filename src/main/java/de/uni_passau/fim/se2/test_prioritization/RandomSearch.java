@@ -29,7 +29,7 @@ public class RandomSearch<C extends Configuration<C>> implements SearchAlgorithm
     private final FitnessFunction<C> fitnessFunction;
 
     /**
-     * Stepping function to perform the random walk.
+     * Stepping function to perform the random search.
      */
     private final UnaryOperator<C> stepper;
 
@@ -70,19 +70,19 @@ public class RandomSearch<C extends Configuration<C>> implements SearchAlgorithm
     private Pair<C, Double> randomSearch() {
         notifySearchStarted();
 
-        Pair<C,Double> bastCandidate = generateSolution();
+        Pair<C,Double> bestCandidate = generateSolution();
 
         while (searchCanContinue()){
 
             var candidate = generateSolution();
 
-            if (candidate.snd() > bastCandidate.snd())
+            if (candidate.snd() > bestCandidate.snd())
             {
-                bastCandidate=candidate;
+                bestCandidate=candidate;
             }
         }
 
-        return bastCandidate;
+        return bestCandidate;
 
     }
     /**

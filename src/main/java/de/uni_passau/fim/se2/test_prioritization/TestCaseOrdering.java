@@ -1,6 +1,5 @@
 package de.uni_passau.fim.se2.test_prioritization;
 
-import de.uni_passau.fim.se2.Bridge;
 import de.uni_passau.fim.se2.metaheuristics.configurations.Configuration;
 import de.uni_passau.fim.se2.metaheuristics.configurations.ConfigurationGenerator;
 import de.uni_passau.fim.se2.metaheuristics.configurations.ElementaryTransformation;
@@ -16,12 +15,20 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
 
     final boolean[][] coverageMatrix;
 
-    public TestCaseOrdering(boolean[][] coverageMatrix) {
+    final String chosenAlgorithm;
+
+    private static boolean isMinimizing = false;
+
+    public TestCaseOrdering(boolean[][] coverageMatrix, String algorithm) {
         this.coverageMatrix = coverageMatrix;
+        chosenAlgorithm = algorithm;
+        isMinimizing = this.isMinimizing();
     }
 
-    private int counter=0;
-    private boolean isMaxFitnessReached=false;
+    private int step = 0;
+
+    private int maxStep = 500;
+    private boolean isMaxFitnessReached = false;
 
     public Set<Integer> randomSolution;
 
@@ -64,7 +71,18 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public Configuration transform(Configuration configuration) {
-        return null;
+        TestCaseOrdering neighbour = new TestCaseOrdering(this.coverageMatrix, this.chosenAlgorithm);
+        TestCaseOrdering solution = (TestCaseOrdering) configuration;
+
+        Random randomness = Randomness.random();
+        Set<Integer> ordersGenerated = new LinkedHashSet<Integer>();
+        while (ordersGenerated.size() < solution.randomSolution.size()) {
+            Integer nextRandom = randomness.nextInt(solution.randomSolution.size());
+            ordersGenerated.add(nextRandom);
+        }
+        neighbour.randomSolution = ordersGenerated;
+        return neighbour;
+
     }
 
     /**
@@ -75,7 +93,9 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public Object apply(Object o) {
-        return o;
+        TestCaseOrdering o1 = (TestCaseOrdering) o;
+
+        return this.transform(o1);
     }
 
     /**
@@ -163,46 +183,16 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public double getFitnessFor(Object o) {
-        counter++;
+        step++;
         TestCaseOrdering testCase = (TestCaseOrdering) o;
         Set<Integer> randomSolution = testCase.randomSolution;
         boolean[][] coverageMatrix = testCase.coverageMatrix;
-
         double m = coverageMatrix[0].length;
         double n = coverageMatrix.length;
 
-        return 1- ((1/(n*m)) * countTL(coverageMatrix,randomSolution.stream().mapToInt(Integer::intValue).toArray()))  + (1/(2*n));
+        return Fitness.getFitness(m, n, coverageMatrix, randomSolution.stream().mapToInt(Integer::intValue).toArray());
 
-    }
-    public static double countTL(boolean[][] coverageMatrix, int[] randomSolution ){
 
-        ArrayList<Integer> statementResolved = new ArrayList<Integer>();
-        for (int i=0;i<coverageMatrix[0].length;i++){
-            statementResolved.add(0);
-        }
-
-        ArrayList<Integer> temporarySolution = new ArrayList<Integer>();
-        for (int i=0;i<coverageMatrix.length;i++){
-            temporarySolution.add(0);
-        }
-
-        int solution=0;
-        int count;
-        for (int i = 0; i < coverageMatrix.length; i++) {
-            count=0;
-            for (int j = 0; j < coverageMatrix[0].length; j++) {
-                if(coverageMatrix[randomSolution[i]][j]==true && statementResolved.get(j)==0){
-                    statementResolved.set(i,1);
-                    count++;
-                }
-            }
-            temporarySolution.set(i,count);
-        }
-        for (int i = 0; i <coverageMatrix.length ; i++) {
-            solution = solution + temporarySolution.get(i) * (i + 1);
-        }
-
-        return solution;
     }
 
     /**
@@ -214,7 +204,14 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public boolean isMinimizing() {
-        return true;
+        return switch (chosenAlgorithm) {
+            case "SA" -> true;
+            default -> false;
+        };
+    }
+
+    public static boolean isFitnessMinimizing() {
+        return isMinimizing;
     }
 
     /**
@@ -223,8 +220,8 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public void notifySearchStarted() {
-    counter=0;
-    isMaxFitnessReached=false;
+        step = 0;
+        isMaxFitnessReached = false;
     }
 
     /**
@@ -244,7 +241,8 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
      */
     @Override
     public boolean searchMustStop() {
-        return (isMaxFitnessReached || counter >100);
+
+        return (isMaxFitnessReached || step > maxStep);
     }
 
     /**
@@ -270,7 +268,7 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
     @Override
     public Configuration get() {
 
-        TestCaseOrdering c = new TestCaseOrdering(this.coverageMatrix);
+        TestCaseOrdering c = new TestCaseOrdering(this.coverageMatrix, chosenAlgorithm);
         if (this.coverageMatrix.length > 0) {
             int n = this.coverageMatrix.length;
             Random randomness = Randomness.random();
@@ -285,4 +283,5 @@ public class TestCaseOrdering extends Configuration implements ElementaryTransfo
             return null;
         }
     }
+
 }
