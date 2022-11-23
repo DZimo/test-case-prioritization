@@ -50,7 +50,7 @@ class BridgeTest {
         final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected =
                 1 - (1d + 2 + 1 + 3 + 2 + 3 + 5 + 5 + 5 + 5) / (5 * 10) + 1d / (2 * 5);
-        //assert_().that(actual).isWithin(TOLERANCE).of(expected);
+        assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 
     @Test
@@ -69,7 +69,7 @@ class BridgeTest {
         new Main(args).start();
         final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected = 1d - (6d * 1 + 4d * 2) / 50 + 1d / 10;
-        //assert_().that(actual).isWithin(TOLERANCE).of(expected);
+        assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 
     @Test
@@ -93,7 +93,7 @@ class BridgeTest {
         final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected =
                 1 - (1d + 2 + 1 + 3 + 2 + 3 + 5 + 5 + 5 + 5) / (5 * 10) + 1d / (2 * 5);
-        //assert_().that(actual).isWithin(TOLERANCE).of(expected);
+        assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 
     @Test
@@ -112,10 +112,10 @@ class BridgeTest {
 
         final var args = new String[]{"-o", "0:1:2:3:4:5", "-m", "coverageMatrixWithEmptyTestCase"};
         new Main(args).start();
-        //final double actual = Double.parseDouble(outputStreamCaptor.toString());
+        final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected =
                 1 - (1d + 2 + 1 + 3 + 2 + 3 + 5 + 5 + 5 + 5) / (6 * 10) + 1d / (2 * 6);
-       // assert_().that(actual).isWithin(TOLERANCE).of(expected);
+        assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 
     @Test
@@ -140,6 +140,6 @@ class BridgeTest {
         final double actual = Double.parseDouble(outputStreamCaptor.toString());
         final double expected =
                 1 - (1d + 2 + 1 + 3 + 2 + 3 + 5 + 5 + 5 + 5) / (6 * 10) + 1d / (2 * 6);
-        //assert_().that(actual).isWithin(TOLERANCE).of(expected);
+        assert_().that(actual).isWithin(TOLERANCE).of(expected);
     }
 }
